@@ -1,11 +1,23 @@
 import React from "react";
-state = {
-  location: "",
-  isLoading: false,
-  displayLocation: "",
-  weather: {},
-};
+
 class App extends React.Component {
+  state = {
+    location: "",
+    isLoading: false,
+    displayLocation: "",
+    weather: {},
+  };
+
+  componentDidMount() {
+    this.setState({ location: localStorage.getItem("location") || "" });
+  }
+
+  componentDidUpdate(prepProps, prevState) {
+    if (prevState.location !== this.state.location) {
+      this.fetchWeather();
+      localStorage.setItem("location", this.state.location);
+    }
+  }
   convertToFlag = (countryCode) => {
     const codePoints = countryCode
       .toUpperCase()
@@ -15,6 +27,7 @@ class App extends React.Component {
   };
 
   fetchWeather = async () => {
+    if (this.state.location.length < 2) return this.setState({ weather: "" });
     this.setState({ isLoading: true });
     try {
       // 1) Getting location (geocoding)
@@ -38,7 +51,7 @@ class App extends React.Component {
       const weatherData = await weatherRes.json();
       this.setState({ weather: weatherData.daily });
     } catch (err) {
-      console.err(err);
+      console.error(err);
     } finally {
       this.setState({ isLoading: false });
     }
@@ -54,7 +67,7 @@ class App extends React.Component {
           value={this.state.location}
           onChange={(e) => this.setState({ location: e.target.value })}
         />
-        <button onClick={this.fetchWeather}>Get weather</button>
+
         {this.state.isLoading ? (
           <p className="loader">Loading...</p>
         ) : (
@@ -74,7 +87,7 @@ class Weather extends React.Component {
       time: date,
       weathercode: code,
     } = this.props.weather;
-    console.log(max, min, date, code);
+
     return (
       code && (
         <ul
@@ -85,7 +98,13 @@ class Weather extends React.Component {
           code={this.code}
         >
           {date.map((day, i) => (
-            <Day max={max.at(i)} min={min.at(i)} day={day} code={code.at(i)} />
+            <Day
+              max={max.at(i)}
+              min={min.at(i)}
+              day={day}
+              code={code.at(i)}
+              key={day}
+            />
           ))}
         </ul>
       )

@@ -1,17 +1,11 @@
 import React from "react";
-
+state = {
+  location: "",
+  isLoading: false,
+  displayLocation: "",
+  weather: {},
+};
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      location: "",
-      isLoading: false,
-      displayLocation: "",
-      weather: {},
-    };
-    this.fetchWeather = this.fetchWeather.bind(this);
-  }
-
   convertToFlag = (countryCode) => {
     const codePoints = countryCode
       .toUpperCase()
